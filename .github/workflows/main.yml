@@ -1,38 +1,29 @@
-name: ikan
+name: Run tmate
 
 on:
   workflow_dispatch:
 
 jobs:
-  create-tmate-session:
+  tmate:
     runs-on: ubuntu-latest
+
     steps:
-      # Step 1: Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      # Step 2: Install tmate
-      - name: Install tmate
-        run: sudo apt-get install tmate
-
-      # Step 3: Start tmate session and get connection details
       - name: Start tmate session
         run: |
-          # Generate an SSH key for secure connection (optional but recommended)
-          ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/id_rsa
-          
-          # Start tmate session
+          # Start tmate in the background and capture the session info
           tmate -S /tmp/tmate.sock new-session -d
+          echo "tmate session started."
+
+          # Display tmate session SSH connection string
+          echo "tmate session SSH connection string:"
+          tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}' > connection_string.txt
+          cat connection_string.txt
+          
+          # Optional: keep the session alive
           tmate -S /tmp/tmate.sock wait tmate-ready
           
-          # Store connection details
-          TMATE_SSH=$(tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}')
-          TMATE_WEB=$(tmate -S /tmp/tmate.sock display -p '#{tmate_web}')
-          
-          # Echo the URLs so they appear in the logs (for reference)
-          echo "SSH connection: $TMATE_SSH"
-          echo "Web-based connection: $TMATE_WEB"
-
-          # Keep the session alive for connection
-          tmate -S /tmp/tmate.sock attach-session
-          
+          # Keep the job running to keep the session alive
+          while true; do sleep 1; done
