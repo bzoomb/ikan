@@ -11,6 +11,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Install tmate
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tmate
+
       - name: Start tmate session
         run: |
           # Start tmate in the background and capture the session info
@@ -27,3 +32,4 @@ jobs:
           
           # Keep the job running to keep the session alive
           while true; do sleep 1; done
+          
