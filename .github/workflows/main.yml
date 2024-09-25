@@ -17,19 +17,25 @@ jobs:
           sudo apt-get install -y tmate
 
       - name: Start tmate session
+        id: start_tmate
         run: |
-          # Start tmate in the background and capture the session info
+          # Start tmate in the background
           tmate -S /tmp/tmate.sock new-session -d
           echo "tmate session started."
+
+          # Wait for the tmate session to be ready
+          tmate -S /tmp/tmate.sock wait tmate-ready
 
           # Display tmate session SSH connection string
           echo "tmate session SSH connection string:"
           tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}' > connection_string.txt
+
+          # Display the connection string for logging
           cat connection_string.txt
-          
-          # Optional: keep the session alive
-          tmate -S /tmp/tmate.sock wait tmate-ready
-          
+
+      - name: Keep the session alive
+        run: |
           # Keep the job running to keep the session alive
+          echo "Keeping the tmate session alive..."
           while true; do sleep 1; done
           
